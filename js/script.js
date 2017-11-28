@@ -8,7 +8,9 @@
 
 // TODO: refactor all the globals to use the rp object's namespace.
 var rp = {};
-
+var remote_photos =[];
+var local_photos = []; 
+console.log("hi");
 rp.settings = {
     debug: true,
     // Speed of the animation
@@ -42,6 +44,8 @@ rp.session = {
 // Variable to store the images we need to set as background
 // which also includes some text and url's.
 rp.photos = [];
+
+//two lists for photos one from reddit the other from local
 
 // maybe checkout http://engineeredweb.com/blog/09/12/preloading-images-jquery-and-javascript/ for implementing the old precache
 rp.cache = {};
@@ -300,7 +304,7 @@ $(function () {
         gifv: 'gifv'
     }
     
-    var addImageSlide = function (pic) {
+    var addRedditImageSlide = function (pic) {
         /*
         var pic = {
             "title": title,
@@ -489,6 +493,7 @@ $(function () {
 
         if (isLastImage(rp.session.activeIndex) && rp.subredditUrl.indexOf('/imgur') != 0) {
             getRedditImages();
+            mergeImageLists();
         }
     };
 
@@ -723,6 +728,14 @@ $(function () {
         $('#recommend').css({'display':'block'});
     };
     
+    var mergeImageLists = function () {
+    		remote_photos.forEach(function (pic) {
+    			console.log("hi");
+    			rp.photos.push(pic)
+    		})
+    	
+    };
+    
     var getRedditImages = function () {
         //if (noMoreToLoad){
         //    log("No more images to load, will rotate to start.");
@@ -732,6 +745,7 @@ $(function () {
         rp.session.loadingNextImages = true;
 
         var jsonUrl = rp.redditBaseUrl + rp.subredditUrl + ".json?jsonp=?" + rp.session.after + "&" + getVars;
+        console.log(jsonUrl);
         var failedAjax = function (data) {
             var message = "Failed ajax, maybe a bad url? Sorry about that :(";
             var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -753,7 +767,7 @@ $(function () {
             }
 
             $.each(data.data.children, function (i, item) {
-                addImageSlide({
+                addRedditImageSlide({
                     url: item.data.url,
                     title: item.data.title,
                     over18: item.data.over_18,
@@ -819,7 +833,7 @@ $(function () {
             }
 
             $.each(data.data.images, function (i, item) {
-                addImageSlide({
+                addRedditImageSlide({
                     url: item.link,
                     title: item.title,
                     over18: item.nsfw,
@@ -926,4 +940,5 @@ $(function () {
         getImgurAlbum(rp.subredditUrl);
     else
         getRedditImages();
+    		mergeImageLists();
 });
